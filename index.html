@@ -370,6 +370,153 @@
             background-position: right 12px center;
             padding-right: 32px;
         }
+
+        /* 
+         * DASHBOARD COMPONENTS 
+         */
+        .filter-bar {
+            background-color: white;
+            padding: var(--space-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: var(--space-3);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: var(--space-3);
+        }
+
+        .job-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            border-color: #d0d0d0;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .job-title {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .job-company {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .job-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .badge.new {
+            background-color: rgba(46, 125, 50, 0.1);
+            color: var(--success);
+        }
+
+        .badge.source {
+            background-color: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .job-meta {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .posted-date {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .filter-bar {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -423,13 +570,56 @@
 
         <!-- DASHBOARD VIEW -->
         <section id="view-dashboard" class="view-section">
-            <div class="page-header">
-                <h1 class="page-title">Dashboard</h1>
+            <div class="page-header"
+                style="margin-bottom: 24px; text-align: left; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 class="page-title" style="margin-bottom: 8px;">Dashboard</h1>
+                    <p class="page-subtext">Precision-matched job discovery.</p>
+                </div>
+                <!-- Controls -->
             </div>
-            <div class="empty-state">
-                <div class="empty-icon"><i class="ph ph-briefcase"></i></div>
-                <h3>No jobs yet.</h3>
-                <p>In the next step, you will load a realistic dataset.</p>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <input type="text" id="filter-search" class="input-field" placeholder="Search title or company...">
+                <select id="filter-location" class="input-field">
+                    <option value="">All Locations</option>
+                    <option value="Bengaluru">Bengaluru</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Gurugram">Gurugram</option>
+                    <option value="Remote">Remote</option>
+                </select>
+                <select id="filter-mode" class="input-field">
+                    <option value="">All Modes</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Onsite">Onsite</option>
+                </select>
+                <select id="filter-experience" class="input-field">
+                    <option value="">All Exp</option>
+                    <option value="Fresher">Fresher</option>
+                    <option value="0-1 Years">0-1 Years</option>
+                    <option value="1-3 Years">1-3 Years</option>
+                    <option value="3-5 Years">3-5 Years</option>
+                </select>
+                <select id="filter-source" class="input-field">
+                    <option value="">All Sources</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Naukri">Naukri</option>
+                    <option value="Indeed">Indeed</option>
+                    <option value="Instahyre">Instahyre</option>
+                </select>
+                <select id="filter-sort" class="input-field">
+                    <option value="newest">Newest First</option>
+                    <option value="salary">Salary (High-Low)</option>
+                </select>
+            </div>
+
+            <!-- Job Grid -->
+            <div id="job-grid-container" class="job-grid">
+                <!-- Javascript will populate this -->
             </div>
         </section>
 
@@ -480,7 +670,10 @@
             <div class="page-header">
                 <h1 class="page-title">Saved Jobs</h1>
             </div>
-            <div class="empty-state">
+            <div id="saved-grid-container" class="job-grid">
+                <!-- Javascript will populate this -->
+            </div>
+            <div id="saved-empty-state" class="empty-state" style="display: none;">
                 <div class="empty-icon"><i class="ph ph-bookmark-simple"></i></div>
                 <h3>No saved jobs.</h3>
                 <p>Jobs you bookmark will appear here for quick access.</p>
@@ -513,6 +706,37 @@
         </section>
 
     </main>
+
+    <!-- JOB MODAL -->
+    <div id="job-modal" class="modal-overlay">
+        <div class="modal">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                <h2 id="modal-title" style="font-size: 24px;">Job Title</h2>
+                <button onclick="closeModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <p id="modal-company" style="font-weight: 600; color: var(--text-secondary); margin-bottom: 24px;">Company •
+                Location</p>
+
+            <div style="margin-bottom: 24px;">
+                <h4 style="font-family: var(--font-sans); margin-bottom: 8px;">Description</h4>
+                <p id="modal-desc" style="color: var(--text-secondary); white-space: pre-line;">Job description goes
+                    here...</p>
+            </div>
+
+            <div style="margin-bottom: 32px;">
+                <h4 style="font-family: var(--font-sans); margin-bottom: 8px;">Key Skills</h4>
+                <div id="modal-skills" class="job-badges">
+                    <!-- Skills -->
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <a id="modal-apply-btn" href="#" target="_blank" class="btn btn-primary" style="width: 100%;">Apply
+                    Now</a>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ROUTING LOGIC
