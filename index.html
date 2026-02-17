@@ -517,6 +517,75 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* 
+         * CHECKLIST & SHIP STYLES 
+         */
+        .checklist-container {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .checklist-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .checklist-label {
+            flex: 1;
+            margin-left: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .checklist-tooltip {
+            margin-left: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: help;
+        }
+
+        .ship-lock-screen {
+            text-align: center;
+            padding: 64px 24px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .lock-icon {
+            font-size: 64px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
     </style>
 </head>
 
@@ -815,6 +884,71 @@
                 <div class="empty-icon"><i class="ph ph-coffee"></i></div>
                 <h3>No matching roles today.</h3>
                 <p>Check again tomorrow or broaden your criteria.</p>
+            </div>
+        </section>
+
+        <!-- TEST CHECKLIST VIEW -->
+        <section id="view-ji-07-test" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Pre-Flight Checklist</h1>
+                <p class="page-subtext">Ensure system integrity before shipping.</p>
+            </div>
+
+            <div class="checklist-container">
+                <div class="checklist-header">
+                    <div>
+                        <h3 id="test-progress-text" style="font-size: 18px; margin-bottom: 4px;">Tests Passed: 0 / 10
+                        </h3>
+                        <p id="test-warning" style="font-size: 13px; color: var(--error); display: none;">Resolve all
+                            issues before shipping.</p>
+                        <p id="test-success" style="font-size: 13px; color: var(--success); display: none;">All systems
+                            go. Ready to ship.</p>
+                    </div>
+                    <button onclick="resetTestStatus()" class="btn btn-secondary"
+                        style="font-size: 12px; padding: 6px 12px;">
+                        Reset Test Status
+                    </button>
+                </div>
+                <div id="checklist-items">
+                    <!-- Items populated by JS -->
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="#jt/08-ship" id="btn-proceed-ship" class="btn btn-primary"
+                    style="opacity: 0.5; pointer-events: none;">
+                    Proceed to Ship &rarr;
+                </a>
+            </div>
+        </section>
+
+        <!-- SHIP VIEW -->
+        <section id="view-jt-08-ship" class="view-section">
+            <!-- Locked State (Handled by Layout but double check here) -->
+            <div id="ship-locked" class="ship-lock-screen" style="display: none;">
+                <div class="lock-icon"><i class="ph ph-lock-key"></i></div>
+                <h2>Shipment Locked</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Complete the pre-flight checklist to
+                    unlock deployment.</p>
+                <a href="#jt/07-test" class="btn btn-primary">Go to Checklist</a>
+            </div>
+
+            <!-- Unlocked State -->
+            <div id="ship-unlocked" style="display: none; text-align: center; padding: 64px 0;">
+                <div style="font-size: 64px; color: var(--success); margin-bottom: 24px;"><i
+                        class="ph ph-rocket-launch"></i></div>
+                <h1 style="font-size: 48px; font-family: var(--font-serif); margin-bottom: 16px;">Ready for Takeoff</h1>
+                <p style="font-size: 20px; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px;">
+                    All tests passed. System integrity verified. You are clear to deploy V1.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 16px;">
+                    <button class="btn btn-primary" onclick="alert('Deployment sequence initiated! (Demo)')">
+                        Initiate Deployment
+                    </button>
+                    <button class="btn btn-secondary" onclick="alert('Build verification log exported! (Demo)')">
+                        Export Logs
+                    </button>
+                </div>
             </div>
         </section>
 
@@ -1439,6 +1573,151 @@
 
             handleRoute();
         });
+
+        // --- TEST CHECKLIST & SHIP LOGIC ---
+        const testChecklistItems = [
+            { id: 't1', label: 'Preferences persist after refresh', tooltip: 'Reload page and check settings' },
+            { id: 't2', label: 'Match score calculates correctly', tooltip: 'Verify score math vs rules' },
+            { id: 't3', label: '"Show only matches" toggle works', tooltip: 'Filter should hide low scores' },
+            { id: 't4', label: 'Save job persists after refresh', tooltip: 'Bookmark a job and reload' },
+            { id: 't5', label: 'Apply opens in new tab', tooltip: 'Click apply button' },
+            { id: 't6', label: 'Status update persists after refresh', tooltip: 'Change status and reload' },
+            { id: 't7', label: 'Status filter works correctly', tooltip: 'Filter by Applied/Rejected' },
+            { id: 't8', label: 'Digest generates top 10 by score', tooltip: 'Check digest logic' },
+            { id: 't9', label: 'Digest persists for the day', tooltip: 'Reload should show same digest' },
+            { id: 't10', label: 'No console errors on main pages', tooltip: 'Check DevTools Console' }
+        ];
+
+        let checklistState = JSON.parse(localStorage.getItem('jobTrackerChecklist')) || {};
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-items');
+            if (!container) return;
+
+            // Sort logic if needed, currently list order
+            const checkedCount = Object.values(checklistState).filter(v => v).length;
+            const total = testChecklistItems.length;
+
+            // Update Header
+            document.getElementById('test-progress-text').innerText = `Tests Passed: ${checkedCount} / ${total}`;
+            const warnEl = document.getElementById('test-warning');
+            const succEl = document.getElementById('test-success');
+            const proceedBtn = document.getElementById('btn-proceed-ship');
+
+            if (checkedCount < total) {
+                warnEl.style.display = 'block';
+                succEl.style.display = 'none';
+                proceedBtn.style.opacity = '0.5';
+                proceedBtn.style.pointerEvents = 'none';
+                document.getElementById('test-progress-text').style.color = 'var(--error)';
+            } else {
+                warnEl.style.display = 'none';
+                succEl.style.display = 'block';
+                proceedBtn.style.opacity = '1';
+                proceedBtn.style.pointerEvents = 'auto';
+                document.getElementById('test-progress-text').style.color = 'var(--success)';
+            }
+
+            // Render Items
+            container.innerHTML = testChecklistItems.map(item => {
+                const isChecked = checklistState[item.id] || false;
+                return `
+                    <div class="checklist-item" onclick="toggleChecklist('${item.id}')">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} style="transform: scale(1.3); accent-color: var(--accent); cursor: pointer;">
+                        <span class="checklist-label">${item.label}</span>
+                        ${item.tooltip ? `<span class="checklist-tooltip" title="${item.tooltip}">?</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleChecklist(id) {
+            checklistState[id] = !checklistState[id];
+            localStorage.setItem('jobTrackerChecklist', JSON.stringify(checklistState));
+            renderChecklist();
+        }
+
+        function resetTestStatus() {
+            if (confirm("Reset all test progress?")) {
+                checklistState = {};
+                localStorage.setItem('jobTrackerChecklist', JSON.stringify(checklistState));
+                renderChecklist();
+            }
+        }
+
+        function isShipUnlocked() {
+            const checkedCount = Object.values(checklistState).filter(v => v).length;
+            return checkedCount === testChecklistItems.length;
+        }
+
+        // Modified handleRoute to include new routes and lock logic
+        const oldHandleRoute = handleRoute; // Keep Ref if needed, but we'll override
+        handleRoute = function () { // Override existing function
+            const hash = window.location.hash.slice(1);
+            let currentRoute = 'landing';
+            // Added new routes to valid list, handling generic match
+            // We need to support exact matches for new routes
+
+            if (hash === 'jt/07-test') {
+                currentRoute = 'ji-07-test';
+            } else if (hash === 'jt/08-ship') {
+                currentRoute = 'jt-08-ship';
+            } else {
+                // Fallback to original simple routes
+                const validRoutes = ['dashboard', 'saved', 'digest', 'settings', 'proof'];
+                if (validRoutes.includes(hash)) {
+                    currentRoute = hash;
+                }
+            }
+
+            // Special Logic for Ship Lock
+            if (currentRoute === 'jt-08-ship') {
+                if (!isShipUnlocked()) {
+                    // Option A: Redirect
+                    // window.location.hash = 'jt/07-test';
+                    // return;
+
+                    // Option B: Show Locked State
+                    document.getElementById('ship-locked').style.display = 'block';
+                    document.getElementById('ship-unlocked').style.display = 'none';
+                } else {
+                    document.getElementById('ship-locked').style.display = 'none';
+                    document.getElementById('ship-unlocked').style.display = 'block';
+                }
+            }
+
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const activeSection = document.getElementById(`view-${currentRoute}`);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            } else {
+                // If ID logic failed (e.g. landing default), try fallback
+                document.getElementById('view-landing').classList.add('active');
+            }
+
+            // Render Test View if active
+            if (currentRoute === 'ji-07-test') renderChecklist();
+
+            // Nav State (Simple match)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.link === currentRoute) link.classList.add('active');
+                // Note: New routes don't have nav links in top bar per requirements, 
+                // but if they did we'd match here.
+            });
+
+            // Trigger Specific View Renders
+            if (currentRoute === 'dashboard') renderDashboard();
+            if (currentRoute === 'saved') renderSaved();
+        };
+
+        // Re-attach listener since we replaced the function reference (though window.onhashchange calls by name usually, better safe)
+        window.removeEventListener('hashchange', oldHandleRoute);
+        window.addEventListener('hashchange', handleRoute);
+
     </script>
 </body>
 
