@@ -738,11 +738,67 @@
         <section id="view-digest" class="view-section">
             <div class="page-header">
                 <h1 class="page-title">Daily Digest</h1>
+                <p class="page-subtext">Your personalized 9AM brief.</p>
             </div>
-            <div class="empty-state">
-                <div class="empty-icon"><i class="ph ph-newspaper"></i></div>
-                <h3>Daily Digest is empty.</h3>
-                <p>Your personalized job feed will be generated at 9AM.</p>
+
+            <!-- Controls -->
+            <div style="text-align: center; margin-bottom: 32px;">
+                <button onclick="generateDigest()" class="btn btn-primary" style="border-radius: 99px;">
+                    <i class="ph ph-lightning"></i> Generate Today's 9AM Digest (Simulated)
+                </button>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                    Demo Mode: Daily 9AM trigger simulated manually.
+                </p>
+            </div>
+
+            <!-- Digest Container (Email Sim) -->
+            <div id="digest-container"
+                style="display: none; max-width: 680px; margin: 0 auto; background: #fdfdfd; border: 1px solid var(--border); padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.05);">
+
+                <!-- Email Header -->
+                <div
+                    style="text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 24px;">
+                    <h2 style="font-family: var(--font-serif); font-size: 28px; margin-bottom: 8px;">Top 10 Jobs For You
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 14px;" id="digest-date">Today's Digest</p>
+                </div>
+
+                <!-- Digest Content -->
+                <div id="digest-list" style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Items go here -->
+                </div>
+
+                <!-- Email Footer -->
+                <div
+                    style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: #888;">
+                    <p>This digest was generated based on your preferences.</p>
+                    <p>KodNest Premium • Job Notification Tracker</p>
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div id="digest-actions" style="display: none; justify-content: center; gap: 16px; margin-top: 32px;">
+                <button onclick="copyDigest()" class="btn btn-secondary">
+                    <i class="ph ph-copy"></i> Copy to Clipboard
+                </button>
+                <a id="email-draft-btn" href="#" class="btn btn-secondary">
+                    <i class="ph ph-envelope-simple"></i> Create Email Draft
+                </a>
+            </div>
+
+            <!-- Empty State (No Prefs or No Jobs) -->
+            <div id="digest-empty" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="ph ph-sliders-horizontal"></i></div>
+                <h3>Set preferences to generate a personalized digest.</h3>
+                <p>We need to know what you're looking for first.</p>
+                <a href="#settings" class="btn btn-primary" style="margin-top: 16px;">Go to Settings</a>
+            </div>
+
+            <div id="digest-no-matches" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="ph ph-coffee"></i></div>
+                <h3>No matching roles today.</h3>
+                <p>Check again tomorrow or broaden your criteria.</p>
             </div>
         </section>
 
@@ -1128,7 +1184,109 @@
             document.getElementById('job-modal').classList.add('open');
         };
 
-        window.closeModal = function () {
+        // --- DIGEST ENGINE ---
+        function generateDigest() {
+            // Check Prefs
+            if (preferences.roleKeywords.length === 0 && preferences.locations.length === 0) {
+                document.getElementById('digest-empty').style.display = 'block';
+                document.getElementById('digest-container').style.display = 'none';
+                document.getElementById('digest-actions').style.display = 'none';
+                document.getElementById('digest-no-matches').style.display = 'none';
+                return;
+            }
+
+            // Check Persistence
+            const today = new Date().toISOString().split('T')[0];
+            const storedDigest = localStorage.getItem(`jobTrackerDigest_${today}`);
+
+            let digestJobs = [];
+
+            if (storedDigest) {
+                const ids = JSON.parse(storedDigest);
+                digestJobs = allJobs.filter(j => ids.includes(j.id));
+            } else {
+                // Generate Logic: Match Score -> Date
+                const scoredJobs = allJobs.map(j => ({ ...j, score: calculateMatchScore(j) }))
+                    .filter(j => j.score > 0); // Only matches
+
+                scoredJobs.sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score; // Higher score first
+                    return a.postedDaysAgo - b.postedDaysAgo; // Newest first (lowest days)
+                });
+
+                digestJobs = scoredJobs.slice(0, 10);
+
+                // Persist
+                if (digestJobs.length > 0) {
+                    const idsToSave = digestJobs.map(j => j.id);
+                    localStorage.setItem(`jobTrackerDigest_${today}`, JSON.stringify(idsToSave));
+                }
+            }
+
+            renderDigestUI(digestJobs, today);
+        }
+
+        function renderDigestUI(jobs, dateStr) {
+            const container = document.getElementById('digest-container');
+            const list = document.getElementById('digest-list');
+            const actions = document.getElementById('digest-actions');
+            const dateEl = document.getElementById('digest-date');
+            const emptyEl = document.getElementById('digest-empty');
+            const noMatchEl = document.getElementById('digest-no-matches');
+
+            // Reset States
+            emptyEl.style.display = 'none';
+            container.style.display = 'none';
+            actions.style.display = 'none';
+            noMatchEl.style.display = 'none';
+
+            if (jobs.length === 0) {
+                noMatchEl.style.display = 'block';
+                return;
+            }
+
+            // Render
+            dateEl.innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            list.innerHTML = jobs.map(job => {
+                const score = calculateMatchScore(job); // Recalc for display
+                const scoreColor = getScoreColor(score);
+                return `
+                    <div style="padding-bottom: 24px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <div>
+                                <h3 style="font-size: 18px; font-family: var(--font-serif); color: var(--text-primary); margin: 0;">${job.title}</h3>
+                                <p style="font-size: 14px; font-weight: 600; color: var(--text-secondary); margin: 4px 0;">${job.company} • ${job.location}</p>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 700; color: ${scoreColor}; border: 1px solid ${scoreColor}; padding: 2px 8px; border-radius: 12px;">
+                                ${score}% Match
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">${job.experience} • ${job.mode} • ₹${job.salaryRange}</p>
+                        <a href="${job.applyUrl}" target="_blank" style="font-size: 14px; font-weight: 500; color: var(--accent); text-decoration: none;">Apply Now &rarr;</a>
+                    </div>
+                `;
+            }).join('');
+
+            container.style.display = 'block';
+            actions.style.display = 'flex';
+
+            // Prepare Email Draft
+            const subject = encodeURIComponent(`My 9AM Job Digest - ${dateStr}`);
+            const bodyText = jobs.map(j => `${j.title} at ${j.company}\nLocation: ${j.location}\nMatch: ${calculateMatchScore(j)}%\nApply: ${j.applyUrl}\n\n`).join('');
+            const body = encodeURIComponent(bodyText);
+            document.getElementById('email-draft-btn').href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function copyDigest() {
+            const list = document.getElementById('digest-list');
+            const text = list.innerText.replace(/Apply Now →/g, ''); // Simple cleanup
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Digest copied to clipboard!");
+            });
+        }
+
+        function closeModal() {
             document.getElementById('job-modal').classList.remove('open');
         };
 
