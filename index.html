@@ -586,6 +586,100 @@
             color: var(--text-secondary);
             margin-bottom: 24px;
         }
+
+        /* 
+         * PROOF Styles 
+         */
+        .proof-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .proof-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .step-list {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .step-item.done {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .step-icon {
+            color: #ccc;
+        }
+
+        .step-item.done .step-icon {
+            color: var(--success);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.not-started {
+            background: #eee;
+            color: #666;
+        }
+
+        .status-badge.in-progress {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .status-badge.shipped {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+
+        .url-input-container {
+            margin-bottom: 16px;
+        }
+
+        .url-status-icon {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            /* Approx based on label height */
+            font-size: 18px;
+        }
+
+        .copy-area {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-family: monospace;
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            display: none;
+            /* Hidden by default */
+        }
     </style>
 </head>
 
@@ -954,14 +1048,81 @@
 
         <!-- PROOF VIEW -->
         <section id="view-proof" class="view-section">
-            <div class="page-header">
-                <h1 class="page-title">Proof of Work</h1>
-                <p class="page-subtext">Validate your build progress.</p>
+            <div class="page-header" style="margin-bottom: 32px;">
+                <div
+                    style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <h1 class="page-title" style="margin: 0;">Project 1</h1>
+                    <span id="proof-status-badge" class="status-badge not-started">Not Started</span>
+                </div>
+                <p class="page-subtext">Job Notification Tracker — Final Submission</p>
+                <p id="proof-success-msg"
+                    style="color: var(--success); font-weight: 500; margin-top: 16px; opacity: 0; transition: opacity 0.5s;">
+                    Project 1 Shipped Successfully.
+                </p>
             </div>
-            <div class="empty-state">
-                <div class="empty-icon"><i class="ph ph-check-circle"></i></div>
-                <h3>Artifact Collection</h3>
-                <p>This section will track your deployment and testing proof.</p>
+
+            <div class="proof-container">
+                <!-- Section A: Step Summary -->
+                <div class="proof-card">
+                    <h3 style="font-family: var(--font-serif); margin-bottom: 24px;">Step Completion Summary</h3>
+                    <ul class="step-list">
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Initialize Project &
+                            Styles</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Implement Job Data
+                            Structure</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Build Dashboard & Filter
+                            Logic</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Create Preferences
+                            System</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Implement Daily Digest
+                            Logic</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Build Saved Jobs Feature
+                        </li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Implement Test Checklist
+                            (10/10)</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Verify Ship Lock
+                            Mechanism</li>
+                    </ul>
+                </div>
+
+                <!-- Section B: Artifacts -->
+                <div class="proof-card">
+                    <h3 style="font-family: var(--font-serif); margin-bottom: 8px;">Artifact Collection</h3>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">
+                        Provide the mandatory links to validate your shipment.
+                    </p>
+
+                    <div class="url-input-container" style="position: relative;">
+                        <label class="input-label">Lovable Project Link</label>
+                        <input type="text" id="proof-lovable" class="input-field" placeholder="https://lovable.dev/..."
+                            oninput="updateProofState()">
+                        <i id="icon-lovable" class="ph ph-circle url-status-icon" style="color: #ccc;"></i>
+                    </div>
+
+                    <div class="url-input-container" style="position: relative;">
+                        <label class="input-label">GitHub Repository Link</label>
+                        <input type="text" id="proof-github" class="input-field" placeholder="https://github.com/..."
+                            oninput="updateProofState()">
+                        <i id="icon-github" class="ph ph-circle url-status-icon" style="color: #ccc;"></i>
+                    </div>
+
+                    <div class="url-input-container" style="position: relative;">
+                        <label class="input-label">Deployed URL</label>
+                        <input type="text" id="proof-deploy" class="input-field" placeholder="https://vercel.com/..."
+                            oninput="updateProofState()">
+                        <i id="icon-deploy" class="ph ph-circle url-status-icon" style="color: #ccc;"></i>
+                    </div>
+                </div>
+
+                <!-- Section C: Submission -->
+                <div class="proof-card" style="text-align: center;">
+                    <button id="btn-copy-proof" onclick="copyFinalSubmission()" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; margin-bottom: 12px;">
+                        <i class="ph ph-copy"></i> Copy Final Submission
+                    </button>
+                    <p id="proof-copy-feedback" style="font-size: 13px; color: var(--success); display: none;">Copied to
+                        clipboard!</p>
+                </div>
             </div>
         </section>
 
@@ -1717,6 +1878,123 @@
         // Re-attach listener since we replaced the function reference (though window.onhashchange calls by name usually, better safe)
         window.removeEventListener('hashchange', oldHandleRoute);
         window.addEventListener('hashchange', handleRoute);
+
+        // --- PROOF SYSTEM LOGIC ---
+        let proofState = {
+            lovable: '',
+            github: '',
+            deploy: ''
+        };
+
+        function loadProofState() {
+            const saved = localStorage.getItem('jobTrackerProof');
+            if (saved) {
+                try {
+                    proofState = { ...proofState, ...JSON.parse(saved) };
+                    document.getElementById('proof-lovable').value = proofState.lovable;
+                    document.getElementById('proof-github').value = proofState.github;
+                    document.getElementById('proof-deploy').value = proofState.deploy;
+                } catch (e) { console.error("Proof Load Error", e); }
+            }
+            updateProofUI();
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return string.length > 8 && string.includes('.'); // Basic sanity check
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function updateProofState() {
+            proofState.lovable = document.getElementById('proof-lovable').value.trim();
+            proofState.github = document.getElementById('proof-github').value.trim();
+            proofState.deploy = document.getElementById('proof-deploy').value.trim();
+
+            localStorage.setItem('jobTrackerProof', JSON.stringify(proofState));
+            updateProofUI();
+        }
+
+        function updateProofUI() {
+            const vLove = isValidUrl(proofState.lovable);
+            const vGit = isValidUrl(proofState.github);
+            const vDep = isValidUrl(proofState.deploy);
+            const allTestsPassed = isShipUnlocked();
+
+            // Update Icons
+            setIcon('icon-lovable', vLove);
+            setIcon('icon-github', vGit);
+            setIcon('icon-deploy', vDep);
+
+            // Determine Status
+            // Shipped = All 3 URLs Valid + 10 Tests Passed
+            const isShipped = vLove && vGit && vDep && allTestsPassed;
+            // In Progress = Any input filled OR some tests passed
+            const isInProgress = (proofState.lovable || proofState.github || proofState.deploy || Object.values(checklistState).some(x => x));
+
+            const badge = document.getElementById('proof-status-badge');
+            const msg = document.getElementById('proof-success-msg');
+
+            if (isShipped) {
+                badge.className = 'status-badge shipped';
+                badge.innerText = 'Shipped';
+                msg.style.opacity = '1';
+            } else if (isInProgress) {
+                badge.className = 'status-badge in-progress';
+                badge.innerText = 'In Progress';
+                msg.style.opacity = '0';
+            } else {
+                badge.className = 'status-badge not-started';
+                badge.innerText = 'Not Started';
+                msg.style.opacity = '0';
+            }
+        }
+
+        function setIcon(id, isValid) {
+            const el = document.getElementById(id);
+            if (isValid) {
+                el.className = 'ph ph-check-circle url-status-icon';
+                el.style.color = 'var(--success)';
+            } else {
+                el.className = 'ph ph-circle url-status-icon';
+                el.style.color = '#ccc';
+            }
+        }
+
+        function copyFinalSubmission() {
+            const text = `
+Job Notification Tracker — Final Submission
+
+Lovable Project:
+${proofState.lovable || '[Missing Link]'}
+
+GitHub Repository:
+${proofState.github || '[Missing Link]'}
+
+Live Deployment:
+${proofState.deploy || '[Missing Link]'}
+
+Core Features:
+- Intelligent match scoring
+- Daily digest simulation
+- Status tracking
+- Test checklist enforced
+`;
+            navigator.clipboard.writeText(text.trim()).then(() => {
+                const fb = document.getElementById('proof-copy-feedback');
+                fb.style.display = 'block';
+                setTimeout(() => fb.style.display = 'none', 3000);
+            });
+        }
+
+        // Hook into init
+        const originalInit = window.onload; // or however it was attached, actually looking at code:
+        // window.addEventListener('DOMContentLoaded', ...)
+        // We can just add another listener
+        window.addEventListener('DOMContentLoaded', loadProofState);
+
 
     </script>
 </body>
