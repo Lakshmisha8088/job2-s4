@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KodNest Premium Build System</title>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* 
+         * DESIGN TOKENS 
+         */
+        :root {
+            /* Color System */
+            --bg-primary: #F7F6F3;
+            --bg-card: #FFFFFF;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --accent: #8B0000;
+            --accent-hover: #660000;
+            --border: #E0E0E0;
+            --success: #2E7D32;
+            --warning: #F57C00;
+            --error: #D32F2F;
+
+            /* Spacing Scale */
+            --space-1: 8px;
+            --space-2: 16px;
+            --space-3: 24px;
+            --space-4: 40px;
+            --space-5: 64px;
+
+            /* Typography */
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+
+            /* UI Properties */
+            --radius: 4px;
+            --transition: all 180ms ease-in-out;
+            --nav-height: 64px;
+        }
+
+        /* 
+         * RESET & BASE STYLES 
+         */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        /* 
+         * NAVIGATION 
+         */
+        .top-bar {
+            height: var(--nav-height);
+            border-bottom: 1px solid var(--border);
+            background-color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: -0.01em;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-4);
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 20px 0;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--text-primary);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: var(--space-2) 0;
+            flex-direction: column;
+            z-index: 99;
+        }
+
+        .mobile-menu.open {
+            display: flex;
+        }
+
+        .mobile-nav-link {
+            padding: var(--space-2) var(--space-4);
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .mobile-nav-link.active {
+            color: var(--accent);
+            background-color: rgba(139, 0, 0, 0.05);
+            border-left: 4px solid var(--accent);
+        }
+
+        /* 
+         * LAYOUT & SECTIONS 
+         */
+        .main-container {
+            flex: 1;
+            padding: var(--space-5) var(--space-4);
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-header {
+            margin-bottom: var(--space-5);
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 48px;
+            margin-bottom: var(--space-2);
+        }
+
+        .page-subtext {
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: block;
+            }
+
+            .page-title {
+                font-size: 32px;
+            }
+
+            .main-container {
+                padding: var(--space-4) var(--space-3);
+            }
+        }
+
+        /* 
+         * UTILITIES 
+         */
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-3);
+        }
+
+        /* 
+         * COMPONENTS 
+         */
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-1);
+            padding: 10px 20px;
+            font-family: var(--font-sans);
+            font-weight: 500;
+            font-size: 14px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(139, 0, 0, 0.05);
+        }
+
+        .btn-icon {
+            padding: 8px;
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: var(--space-3);
+            transition: var(--transition);
+        }
+
+        /* Inputs */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: var(--space-2);
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .input-field {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            background-color: white;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* 
+         * APP COMPONENTS 
+         */
+        .empty-state {
+            text-align: center;
+            padding: 64px 24px;
+            background: var(--bg-card);
+            border: 1px dashed var(--border);
+            border-radius: var(--radius);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-family: var(--font-serif);
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin: 0 auto;
+        }
+
+        /* Form Styling Overrides */
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555555' viewBox='0 0 256 256'%3E%3Cpath d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+
+        /* 
+         * DASHBOARD COMPONENTS 
+         */
+        .filter-bar {
+            background-color: white;
+            padding: var(--space-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: var(--space-3);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: var(--space-3);
+        }
+
+        .job-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            border-color: #d0d0d0;
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .job-title {
+            font-family: var(--font-serif);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        .job-company {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .job-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .badge.new {
+            background-color: rgba(46, 125, 50, 0.1);
+            color: var(--success);
+        }
+
+        .badge.source {
+            background-color: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .job-meta {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .posted-date {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .filter-bar {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 
+         * CHECKLIST & SHIP STYLES 
+         */
+        .checklist-container {
+            background: white;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .checklist-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            transition: background-color 0.2s;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .checklist-label {
+            flex: 1;
+            margin-left: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .checklist-tooltip {
+            margin-left: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: help;
+        }
+
+        .ship-lock-screen {
+            text-align: center;
+            padding: 64px 24px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .lock-icon {
+            font-size: 64px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        /* 
+         * PROOF Styles 
+         */
+        .proof-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .proof-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .step-list {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .step-item.done {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .step-icon {
+            color: #ccc;
+        }
+
+        .step-item.done .step-icon {
+            color: var(--success);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.not-started {
+            background: #eee;
+            color: #666;
+        }
+
+        .status-badge.in-progress {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .status-badge.shipped {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #C8E6C9;
+        }
+
+        .url-input-container {
+            margin-bottom: 16px;
+        }
+
+        .url-status-icon {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            /* Approx based on label height */
+            font-size: 18px;
+        }
+
+        .copy-area {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-family: monospace;
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            display: none;
+            /* Hidden by default */
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="top-bar">
+        <a href="#dashboard" class="brand">KodNest Premium</a>
+
+        <!-- Desktop Nav -->
+        <div class="nav-links">
+            <a href="#dashboard" class="nav-link" data-link="dashboard">Dashboard</a>
+            <a href="#saved" class="nav-link" data-link="saved">Saved</a>
+            <a href="#digest" class="nav-link" data-link="digest">Digest</a>
+            <a href="#settings" class="nav-link" data-link="settings">Settings</a>
+            <a href="#proof" class="nav-link" data-link="proof">Proof</a>
+        </div>
+
+        <!-- Mobile Hamburger -->
+        <div class="hamburger" onclick="toggleMobileMenu()">
+            <i class="ph ph-list"></i>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU DROPDOWN -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#dashboard" class="mobile-nav-link" data-link="dashboard" onclick="toggleMobileMenu()">Dashboard</a>
+        <a href="#saved" class="mobile-nav-link" data-link="saved" onclick="toggleMobileMenu()">Saved</a>
+        <a href="#digest" class="mobile-nav-link" data-link="digest" onclick="toggleMobileMenu()">Digest</a>
+        <a href="#settings" class="mobile-nav-link" data-link="settings" onclick="toggleMobileMenu()">Settings</a>
+        <a href="#proof" class="mobile-nav-link" data-link="proof" onclick="toggleMobileMenu()">Proof</a>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-container">
+
+        <!-- LANDING VIEW (Default) -->
+        <section id="view-landing" class="view-section">
+            <div style="text-align: center; padding: 100px 0; max-width: 800px; margin: 0 auto;">
+                <h1 style="font-size: 64px; margin-bottom: 24px; line-height: 1.1;">Stop Missing The Right Jobs.</h1>
+                <p
+                    style="font-size: 20px; color: var(--text-secondary); margin-bottom: 48px; margin-left: auto; margin-right: auto; max-width: 600px;">
+                    Precision-matched job discovery delivered daily at 9AM.
+                </p>
+                <a href="#settings" class="btn btn-primary"
+                    style="padding: 16px 40px; font-size: 16px; border-radius: 99px;">
+                    Start Tracking
+                </a>
+            </div>
+        </section>
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-section">
+            <div class="page-header"
+                style="margin-bottom: 24px; text-align: left; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 class="page-title" style="margin-bottom: 8px;">Dashboard</h1>
+                    <p class="page-subtext">Precision-matched job discovery.</p>
+                </div>
+                <!-- Controls -->
+            </div>
+
+            <!-- Preferences Banner -->
+            <div id="pref-banner"
+                style="background-color: #E3F2FD; border: 1px solid #BBDEFB; color: #0D47A1; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 24px; display: none; align-items: center; justify-content: space-between;">
+                <span style="font-size: 14px; font-weight: 500;">Set your preferences to activate intelligent
+                    matching.</span>
+                <a href="#settings" class="btn btn-primary"
+                    style="padding: 6px 12px; font-size: 12px; height: auto;">Setup</a>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <input type="text" id="filter-search" class="input-field" placeholder="Search title or company...">
+                <select id="filter-location" class="input-field">
+                    <option value="">All Locations</option>
+                    <option value="Bengaluru">Bengaluru</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Gurugram">Gurugram</option>
+                    <option value="Remote">Remote</option>
+                </select>
+                <select id="filter-mode" class="input-field">
+                    <option value="">All Modes</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Onsite">Onsite</option>
+                </select>
+                <select id="filter-experience" class="input-field">
+                    <option value="">All Exp</option>
+                    <option value="Fresher">Fresher</option>
+                    <option value="0-1 Years">0-1 Years</option>
+                    <option value="1-3 Years">1-3 Years</option>
+                    <option value="3-5 Years">3-5 Years</option>
+                </select>
+                <select id="filter-source" class="input-field">
+                    <option value="">All Sources</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Naukri">Naukri</option>
+                    <option value="Indeed">Indeed</option>
+                    <option value="Instahyre">Instahyre</option>
+                </select>
+                <select id="filter-sort" class="input-field">
+                    <option value="newest">Newest First</option>
+                    <option value="match">Match Score</option>
+                    <option value="salary">Salary (High-Low)</option>
+                </select>
+                <select id="filter-status" class="input-field"
+                    style="border-color: var(--accent); color: var(--accent); font-weight: 500;">
+                    <option value="">All Statuses</option>
+                    <option value="Not Applied">Not Applied</option>
+                    <option value="Applied">Applied</option>
+                    <option value="Rejected">Rejected</option>
+                    <option value="Selected">Selected</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                <label
+                    style="font-size: 14px; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="filter-match-toggle" style="accent-color: var(--accent);"> Show only jobs
+                    above my threshold
+                </label>
+            </div>
+
+            <!-- Job Grid -->
+            <div id="job-grid-container" class="job-grid">
+                <!-- Javascript will populate this -->
+            </div>
+        </section>
+
+        <!-- SETTINGS VIEW -->
+        <section id="view-settings" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Preferences</h1>
+                <p class="page-subtext">Customize your job discovery feed.</p>
+            </div>
+
+            <div class="card" style="max-width: 600px; margin: 0 auto;">
+                <div class="input-group">
+                    <label class="input-label">Role Keywords (comma separated)</label>
+                    <input type="text" id="pref-roleKeywords" class="input-field"
+                        placeholder="e.g. Frontend, React, Product Designer">
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Preferred Locations (Hold Ctrl/Cmd to select multiple)</label>
+                    <select id="pref-locations" class="input-field" multiple size="5">
+                        <option value="Bengaluru">Bengaluru</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Mumbai">Mumbai</option>
+                        <option value="Gurugram">Gurugram</option>
+                        <option value="Noida">Noida</option>
+                        <option value="Chennai">Chennai</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label class="input-label">Preferred Mode</label>
+                    <div style="display: flex; gap: 16px; padding: 8px 0;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px;">
+                            <input type="checkbox" class="pref-mode" value="Remote"> Remote
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px;">
+                            <input type="checkbox" class="pref-mode" value="Hybrid"> Hybrid
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px;">
+                            <input type="checkbox" class="pref-mode" value="Onsite"> Onsite
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div class="input-group">
+                        <label class="input-label">Experience Level</label>
+                        <select id="pref-experience" class="input-field">
+                            <option value="">Any</option>
+                            <option value="Fresher">Fresher</option>
+                            <option value="0-1 Years">0-1 Years</option>
+                            <option value="1-3 Years">1-3 Years</option>
+                            <option value="3-5 Years">3-5 Years</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Your Skills (comma separated)</label>
+                        <input type="text" id="pref-skills" class="input-field" placeholder="e.g. Java, Python, Figma">
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 16px;">
+                    <label class="input-label" style="display: flex; justify-content: space-between;">
+                        <span>Minimum Match Score</span>
+                        <span id="score-val">40</span>
+                    </label>
+                    <input type="range" id="pref-minScore" min="0" max="100" value="40"
+                        style="width: 100%; accent-color: var(--accent);"
+                        oninput="document.getElementById('score-val').innerText = this.value">
+                </div>
+
+                <div style="margin-top: 24px; text-align: right;">
+                    <button onclick="savePreferences()" class="btn btn-primary">Save Preferences</button>
+                    <p id="save-msg" style="color: var(--success); font-size: 13px; margin-top: 8px; display: none;">
+                        Preferences Saved!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SAVED VIEW -->
+        <section id="view-saved" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Saved Jobs</h1>
+            </div>
+            <div id="saved-grid-container" class="job-grid">
+                <!-- Javascript will populate this -->
+            </div>
+            <div id="saved-empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="ph ph-bookmark-simple"></i></div>
+                <h3>No saved jobs.</h3>
+                <p>Jobs you bookmark will appear here for quick access.</p>
+            </div>
+        </section>
+
+        <!-- DIGEST VIEW -->
+        <section id="view-digest" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Daily Digest</h1>
+                <p class="page-subtext">Your personalized 9AM brief.</p>
+            </div>
+
+            <!-- Controls -->
+            <div style="text-align: center; margin-bottom: 32px;">
+                <button onclick="generateDigest()" class="btn btn-primary" style="border-radius: 99px;">
+                    <i class="ph ph-lightning"></i> Generate Today's 9AM Digest (Simulated)
+                </button>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                    Demo Mode: Daily 9AM trigger simulated manually.
+                </p>
+            </div>
+
+            <!-- Digest Container (Email Sim) -->
+            <div id="digest-container"
+                style="display: none; max-width: 680px; margin: 0 auto; background: #fdfdfd; border: 1px solid var(--border); padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.05);">
+
+                <!-- Email Header -->
+                <div
+                    style="text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 24px;">
+                    <h2 style="font-family: var(--font-serif); font-size: 28px; margin-bottom: 8px;">Top 10 Jobs For You
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 14px;" id="digest-date">Today's Digest</p>
+                </div>
+
+                <!-- Digest Content -->
+                <div id="digest-list" style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Items go here -->
+                </div>
+
+                <!-- Status Updates Section -->
+                <div id="digest-status-updates"
+                    style="margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border); display: none;">
+                    <h4 style="font-family: var(--font-serif); margin-bottom: 16px;">Recent Status Updates</h4>
+                    <div id="digest-status-list"
+                        style="font-size: 14px; display: flex; flex-direction: column; gap: 12px;"></div>
+                </div>
+
+                <!-- Email Footer -->
+                <div
+                    style="margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 12px; color: #888;">
+                    <p>This digest was generated based on your preferences.</p>
+                    <p>KodNest Premium • Job Notification Tracker</p>
+                </div>
+
+            </div>
+
+            <!-- Actions -->
+            <div id="digest-actions" style="display: none; justify-content: center; gap: 16px; margin-top: 32px;">
+                <button onclick="copyDigest()" class="btn btn-secondary">
+                    <i class="ph ph-copy"></i> Copy to Clipboard
+                </button>
+                <a id="email-draft-btn" href="#" class="btn btn-secondary">
+                    <i class="ph ph-envelope-simple"></i> Create Email Draft
+                </a>
+            </div>
+
+            <!-- Empty State (No Prefs or No Jobs) -->
+            <div id="digest-empty" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="ph ph-sliders-horizontal"></i></div>
+                <h3>Set preferences to generate a personalized digest.</h3>
+                <p>We need to know what you're looking for first.</p>
+                <a href="#settings" class="btn btn-primary" style="margin-top: 16px;">Go to Settings</a>
+            </div>
+
+            <div id="digest-no-matches" class="empty-state" style="display: none;">
+                <div class="empty-icon"><i class="ph ph-coffee"></i></div>
+                <h3>No matching roles today.</h3>
+                <p>Check again tomorrow or broaden your criteria.</p>
+            </div>
+        </section>
+
+        <!-- TEST CHECKLIST VIEW -->
+        <section id="view-ji-07-test" class="view-section">
+            <div class="page-header">
+                <h1 class="page-title">Pre-Flight Checklist</h1>
+                <p class="page-subtext">Ensure system integrity before shipping.</p>
+            </div>
+
+            <div class="checklist-container">
+                <div class="checklist-header">
+                    <div>
+                        <h3 id="test-progress-text" style="font-size: 18px; margin-bottom: 4px;">Tests Passed: 0 / 10
+                        </h3>
+                        <p id="test-warning" style="font-size: 13px; color: var(--error); display: none;">Resolve all
+                            issues before shipping.</p>
+                        <p id="test-success" style="font-size: 13px; color: var(--success); display: none;">All systems
+                            go. Ready to ship.</p>
+                    </div>
+                    <button onclick="resetTestStatus()" class="btn btn-secondary"
+                        style="font-size: 12px; padding: 6px 12px;">
+                        Reset Test Status
+                    </button>
+                </div>
+                <div id="checklist-items">
+                    <!-- Items populated by JS -->
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 32px;">
+                <a href="#jt/08-ship" id="btn-proceed-ship" class="btn btn-primary"
+                    style="opacity: 0.5; pointer-events: none;">
+                    Proceed to Ship &rarr;
+                </a>
+            </div>
+        </section>
+
+        <!-- SHIP VIEW -->
+        <section id="view-jt-08-ship" class="view-section">
+            <!-- Locked State (Handled by Layout but double check here) -->
+            <div id="ship-locked" class="ship-lock-screen" style="display: none;">
+                <div class="lock-icon"><i class="ph ph-lock-key"></i></div>
+                <h2>Shipment Locked</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Complete the pre-flight checklist to
+                    unlock deployment.</p>
+                <a href="#jt/07-test" class="btn btn-primary">Go to Checklist</a>
+            </div>
+
+            <!-- Unlocked State -->
+            <div id="ship-unlocked" style="display: none; text-align: center; padding: 64px 0;">
+                <div style="font-size: 64px; color: var(--success); margin-bottom: 24px;"><i
+                        class="ph ph-rocket-launch"></i></div>
+                <h1 style="font-size: 48px; font-family: var(--font-serif); margin-bottom: 16px;">Ready for Takeoff</h1>
+                <p style="font-size: 20px; color: var(--text-secondary); max-width: 600px; margin: 0 auto 40px;">
+                    All tests passed. System integrity verified. You are clear to deploy V1.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 16px;">
+                    <button class="btn btn-primary" onclick="alert('Deployment sequence initiated! (Demo)')">
+                        Initiate Deployment
+                    </button>
+                    <button class="btn btn-secondary" onclick="alert('Build verification log exported! (Demo)')">
+                        Export Logs
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROOF VIEW -->
+        <section id="view-proof" class="view-section">
+            <div class="page-header" style="margin-bottom: 32px;">
+                <div
+                    style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 12px;">
+                    <h1 class="page-title" style="margin: 0;">Project 1</h1>
+                    <span id="proof-status-badge" class="status-badge not-started">Not Started</span>
+                </div>
+                <p class="page-subtext">Job Notification Tracker — Final Submission</p>
+                <p id="proof-success-msg"
+                    style="color: var(--success); font-weight: 500; margin-top: 16px; opacity: 0; transition: opacity 0.5s;">
+                    Project 1 Shipped Successfully.
+                </p>
+            </div>
+
+            <div class="proof-container">
+                <!-- Section A: Step Summary -->
+                <div class="proof-card">
+                    <h3 style="font-family: var(--font-serif); margin-bottom: 24px;">Step Completion Summary</h3>
+                    <ul class="step-list">
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Initialize Project &
+                            Styles</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Implement Job Data
+                            Structure</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Build Dashboard & Filter
+                            Logic</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Create Preferences
+                            System</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Implement Daily Digest
+                            Logic</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Build Saved Jobs Feature
+                        </li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Implement Test Checklist
+                            (10/10)</li>
+                        <li class="step-item done"><i class="ph ph-check-circle step-icon"></i> Verify Ship Lock
+                            Mechanism</li>
+                    </ul>
+                </div>
+
+                <!-- Section B: Artifacts -->
+                <div class="proof-card">
+                    <h3 style="font-family: var(--font-serif); margin-bottom: 8px;">Artifact Collection</h3>
+                    <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;">
+                        Provide the mandatory links to validate your shipment.
+                    </p>
+
+                    <div class="url-input-container" style="position: relative;">
+                        <label class="input-label">Lovable Project Link</label>
+                        <input type="text" id="proof-lovable" class="input-field" placeholder="https://lovable.dev/..."
+                            oninput="updateProofState()">
+                        <i id="icon-lovable" class="ph ph-circle url-status-icon" style="color: #ccc;"></i>
+                    </div>
+
+                    <div class="url-input-container" style="position: relative;">
+                        <label class="input-label">GitHub Repository Link</label>
+                        <input type="text" id="proof-github" class="input-field" placeholder="https://github.com/..."
+                            oninput="updateProofState()">
+                        <i id="icon-github" class="ph ph-circle url-status-icon" style="color: #ccc;"></i>
+                    </div>
+
+                    <div class="url-input-container" style="position: relative;">
+                        <label class="input-label">Deployed URL</label>
+                        <input type="text" id="proof-deploy" class="input-field" placeholder="https://vercel.com/..."
+                            oninput="updateProofState()">
+                        <i id="icon-deploy" class="ph ph-circle url-status-icon" style="color: #ccc;"></i>
+                    </div>
+                </div>
+
+                <!-- Section C: Submission -->
+                <div class="proof-card" style="text-align: center;">
+                    <button id="btn-copy-proof" onclick="copyFinalSubmission()" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; margin-bottom: 12px;">
+                        <i class="ph ph-copy"></i> Copy Final Submission
+                    </button>
+                    <p id="proof-copy-feedback" style="font-size: 13px; color: var(--success); display: none;">Copied to
+                        clipboard!</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JOB MODAL -->
+    <div id="job-modal" class="modal-overlay">
+        <div class="modal">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+                <h2 id="modal-title" style="font-size: 24px;">Job Title</h2>
+                <button onclick="closeModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <p id="modal-company" style="font-weight: 600; color: var(--text-secondary); margin-bottom: 24px;">Company •
+                Location</p>
+
+            <div style="margin-bottom: 24px;">
+                <h4 style="font-family: var(--font-sans); margin-bottom: 8px;">Description</h4>
+                <p id="modal-desc" style="color: var(--text-secondary); white-space: pre-line;">Job description goes
+                    here...</p>
+            </div>
+
+            <div style="margin-bottom: 32px;">
+                <h4 style="font-family: var(--font-sans); margin-bottom: 8px;">Key Skills</h4>
+                <div id="modal-skills" class="job-badges">
+                    <!-- Skills -->
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <a id="modal-apply-btn" href="#" target="_blank" class="btn btn-primary" style="width: 100%;">Apply
+                    Now</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- PREFERENCES MANAGER ---
+        let preferences = {
+            roleKeywords: [],
+            locations: [],
+            modes: [],
+            experience: "",
+            skills: [],
+            minScore: 40
+        };
+
+        function loadPreferences() {
+            const saved = localStorage.getItem('jobTrackerPreferences');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Merge with defaults to ensure all keys exist (Safe Migration)
+                    preferences = { ...preferences, ...parsed };
+
+                    // Safety checks for arrays
+                    if (!Array.isArray(preferences.roleKeywords)) preferences.roleKeywords = [];
+                    if (!Array.isArray(preferences.locations)) preferences.locations = [];
+                    if (!Array.isArray(preferences.modes)) preferences.modes = [];
+                    if (!Array.isArray(preferences.skills)) preferences.skills = [];
+
+                    applyPreferencesToForm();
+                } catch (e) {
+                    console.error("Error loading preferences", e);
+                    // If error, keep defaults
+                    localStorage.removeItem('jobTrackerPreferences');
+                }
+            }
+        }
+
+        function savePreferences() {
+            // Get values from form
+            const roleInput = document.getElementById('pref-roleKeywords').value;
+            const skillInput = document.getElementById('pref-skills').value;
+            const expInput = document.getElementById('pref-experience').value;
+            const minScoreInput = document.getElementById('pref-minScore').value;
+
+            // Locations (multi-select)
+            const locSelect = document.getElementById('pref-locations');
+            const locations = Array.from(locSelect.selectedOptions).map(opt => opt.value);
+
+            const modeInputs = document.querySelectorAll('.pref-mode:checked');
+            const modes = Array.from(modeInputs).map(cb => cb.value);
+
+            preferences = {
+                roleKeywords: roleInput.split(',').map(s => s.trim()).filter(s => s),
+                locations: locations, // Already array
+                modes: modes,
+                experience: expInput,
+                skills: skillInput.split(',').map(s => s.trim()).filter(s => s),
+                minScore: parseInt(minScoreInput) || 0
+            };
+
+            localStorage.setItem('jobTrackerPreferences', JSON.stringify(preferences));
+
+            // Show Feedback
+            const msg = document.getElementById('save-msg');
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+
+            // Re-render dashboard to reflect changes
+            if (allJobs.length > 0) renderDashboard();
+        }
+
+        function applyPreferencesToForm() {
+            document.getElementById('pref-roleKeywords').value = preferences.roleKeywords.join(', ');
+            document.getElementById('pref-skills').value = preferences.skills.join(', ');
+            document.getElementById('pref-experience').value = preferences.experience;
+            document.getElementById('pref-minScore').value = preferences.minScore;
+            document.getElementById('score-val').innerText = preferences.minScore;
+
+            // Apply Locations
+            const locSelect = document.getElementById('pref-locations');
+            Array.from(locSelect.options).forEach(opt => {
+                opt.selected = preferences.locations.includes(opt.value);
+            });
+
+            // Apply Modes
+            document.querySelectorAll('.pref-mode').forEach(cb => {
+                cb.checked = preferences.modes.includes(cb.value);
+            });
+        }
+
+        // --- SCORING ENGINE ---
+        function calculateMatchScore(job) {
+            let score = 0;
+            const { roleKeywords, locations, modes, experience, skills } = preferences;
+
+            // Rule 1: Role Keyword in Title (+25)
+            const titleMatch = roleKeywords.some(k => job.title.toLowerCase().includes(k.toLowerCase()));
+            if (titleMatch) score += 25;
+
+            // Rule 2: Role Keyword in Description (+15)
+            const descMatch = roleKeywords.some(k => job.description.toLowerCase().includes(k.toLowerCase()));
+            if (descMatch) score += 15;
+
+            // Rule 3: Location Match (+15)
+            const locMatch = locations.some(l => job.location.toLowerCase().includes(l.toLowerCase()));
+            if (locMatch) score += 15;
+
+            // Rule 4: Mode Match (+10)
+            if (modes.includes(job.mode)) score += 10;
+
+            // Rule 5: Experience Match (+10)
+            if (experience && job.experience === experience) score += 10;
+
+            // Rule 6: Skill Overlap (+15 if any match)
+            const skillMatch = job.skills.some(jobSkill =>
+                skills.some(userSkill => jobSkill.toLowerCase() === userSkill.toLowerCase())
+            );
+            if (skillMatch) score += 15;
+
+            // Rule 7: New Job (+5)
+            if (job.postedDaysAgo <= 2) score += 5;
+
+            // Rule 8: Source LinkedIn (+5)
+            if (job.source === 'LinkedIn') score += 5;
+
+            return Math.min(score, 100); // Cap at 100
+        }
+
+        function getScoreColor(score) {
+            if (score >= 80) return '#2E7D32'; // Green
+            if (score >= 60) return '#F57C00'; // Amber
+            if (score >= 40) return '#555555'; // Neutral
+            return '#9E9E9E'; // Grey
+        }
+
+        // --- DATA GENERATOR ---
+        const companies = [
+            "Infosys", "TCS", "Wipro", "Accenture", "Capgemini", "Cognizant", "IBM", "Oracle", "SAP", "Dell",
+            "Amazon", "Flipkart", "Swiggy", "Razorpay", "PhonePe", "Paytm", "Zoho", "Freshworks", "Juspay", "CRED",
+            "Zerodha", "Groww", "Postman", "BrowserStack", "HackerRank", "InMobi", "Dream11", "Meesho", "Udaan", "Urban Company"
+        ];
+        const roles = [
+            "SDE Intern", "Graduate Engineer Trainee", "Junior Backend Developer", "Frontend Intern", "QA Intern",
+            "Data Analyst Intern", "Java Developer (0-1)", "Python Developer (Fresher)", "React Developer (1-3)",
+            "Product Designer", "Full Stack Intern", "DevOps Engineer (Junior)", "Technical Support Engineer", "Business Analyst"
+        ];
+        const locations = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Gurugram", "Noida", "Chennai", "Remote"];
+        const modes = ["Onsite", "Hybrid", "Remote"];
+        const sources = ["LinkedIn", "Naukri", "Indeed", "Instahyre", "Hirist"];
+
+        function generateJobs(count) {
+            const jobs = [];
+            for (let i = 0; i < count; i++) {
+                const isIntern = Math.random() > 0.7;
+                const company = companies[Math.floor(Math.random() * companies.length)];
+                const role = roles[Math.floor(Math.random() * roles.length)];
+
+                let salary = "Not Disclosed";
+                if (isIntern) {
+                    salary = `₹${15 + Math.floor(Math.random() * 25)}k/month`;
+                } else {
+                    const base = 3 + Math.floor(Math.random() * 12);
+                    salary = `${base}-${base + 4} LPA`;
+                }
+
+                jobs.push({
+                    id: `job-${1000 + i}`,
+                    title: role,
+                    company: company,
+                    location: locations[Math.floor(Math.random() * locations.length)],
+                    mode: modes[Math.floor(Math.random() * modes.length)],
+                    experience: isIntern ? "Fresher" : ["0-1 Years", "1-3 Years", "3-5 Years"][Math.floor(Math.random() * 3)],
+                    skills: ["Java", "Python", "React", "Node.js", "SQL", "AWS", "Figma"].sort(() => 0.5 - Math.random()).slice(0, 3),
+                    source: sources[Math.floor(Math.random() * sources.length)],
+                    postedDaysAgo: Math.floor(Math.random() * 10),
+                    salaryRange: salary,
+                    applyUrl: "#",
+                    description: `We are looking for a passionate ${role} to join our team at ${company}. \n\nYou will work on cutting-edge technologies and contribute to scalable products. \n\nRequirements:\n- Strong problem-solving skills.\n- Knowledge of modern frameworks.\n- Ability to work in a fast-paced environment.`
+                });
+            }
+            return jobs;
+        }
+
+        // --- STATE MANAGE ---
+        let allJobs = [];
+        let savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || [];
+
+        // --- RENDER LOGIC ---
+        // --- CUSTOM TOAST ---
+        function showToast(message) {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.style.cssText = "position: fixed; bottom: 32px; right: 32px; background: #323232; color: white; padding: 12px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 1000;";
+                document.body.appendChild(toast);
+            }
+            toast.innerText = message;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 3000);
+        }
+
+        // --- STATUS MANAGER ---
+        let jobStatuses = {}; // { jobId: { status: "Applied", date: "YYYY-MM-DD" } }
+
+        function loadStatuses() {
+            const saved = localStorage.getItem('jobTrackerStatus');
+            if (saved) {
+                try {
+                    jobStatuses = JSON.parse(saved);
+                } catch (e) {
+                    console.error("Error loading statuses", e);
+                }
+            }
+        }
+
+        function updateStatus(jobId, newStatus) {
+            const job = allJobs.find(j => j.id === jobId);
+            if (!job) return;
+
+            if (newStatus === "") newStatus = "Not Applied";
+
+            jobStatuses[jobId] = {
+                status: newStatus,
+                date: new Date().toISOString().split('T')[0],
+                title: job.title,
+                company: job.company
+            };
+
+            if (newStatus === "Not Applied") {
+                delete jobStatuses[jobId];
+                showToast("Status cleared");
+            } else {
+                showToast(`Status updated: ${newStatus}`);
+            }
+
+            localStorage.setItem('jobTrackerStatus', JSON.stringify(jobStatuses));
+            renderDashboard();
+            renderSaved();
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Applied': return '#1976D2'; // Blue
+                case 'Rejected': return '#D32F2F'; // Red
+                case 'Selected': return '#388E3C'; // Green
+                default: return '#757575'; // Grey/Neutral
+            }
+        }
+
+        // --- RENDER LOGIC ---
+        function renderJobCard(job) {
+            const isNew = job.postedDaysAgo <= 2;
+            const isSaved = savedJobs.includes(job.id);
+            const score = calculateMatchScore(job);
+            const scoreColor = getScoreColor(score);
+
+            // Status Logic
+            const statusObj = jobStatuses[job.id] || { status: 'Not Applied' };
+            const currentStatus = statusObj.status;
+            const statusColor = getStatusColor(currentStatus);
+
+            // Inline SVG for robustness
+            const bookmarkIcon = isSaved
+                ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--accent)" viewBox="0 0 256 256"><path d="M192,24H64A16,16,0,0,0,48,40V216a16,16,0,0,0,16,16,16,16,0,0,0,11.31-4.69l52.69-52.68,52.69,52.68A16,16,0,0,0,192,232a16,16,0,0,0,16-16V40A16,16,0,0,0,192,24Z"></path></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="var(--text-secondary)" viewBox="0 0 256 256"><path d="M192,24H64A16,16,0,0,0,48,40V216a16,16,0,0,0,16,16,16,16,0,0,0,11.31-4.69l52.69-52.68,52.69,52.68A16,16,0,0,0,192,232a16,16,0,0,0,16-16V40A16,16,0,0,0,192,24Zm0,192-64-64-64,64V40H192Z"></path></svg>`;
+
+            return `
+                <div class="job-card" style="border-left: 4px solid ${currentStatus !== 'Not Applied' ? statusColor : 'transparent'};">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">${job.title}</div>
+                            <div class="job-company">${job.company}</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <button onclick="toggleSave('${job.id}')" title="${isSaved ? 'Unsave' : 'Save'}" class="btn-icon" style="background:none; border:none; cursor:pointer; padding:4px;">
+                                ${bookmarkIcon}
+                            </button>
+                            ${score > 0 ? `<div style="font-size:11px; font-weight:700; color:${scoreColor}; border:1px solid ${scoreColor}; padding:2px 6px; border-radius:12px;">${score}% Match</div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="job-badges">
+                        <span class="badge" style="background: #f0f0f0;">${job.location} (${job.mode})</span>
+                        <span class="badge" style="background: #f0f0f0;">${job.experience}</span>
+                        ${isNew ? '<span class="badge new">New</span>' : ''}
+                        <span class="badge source">${job.source}</span>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <select onchange="updateStatus('${job.id}', this.value)" style="font-size:12px; padding:4px; border-radius:4px; border:1px solid #ddd; background:white; cursor:pointer; width:100%; color:${statusColor}; font-weight:600;">
+                            <option value="Not Applied" ${currentStatus === 'Not Applied' ? 'selected' : ''}>Status: Not Applied</option>
+                            <option value="Applied" ${currentStatus === 'Applied' ? 'selected' : ''}>Status: Applied</option>
+                            <option value="Rejected" ${currentStatus === 'Rejected' ? 'selected' : ''}>Status: Rejected</option>
+                            <option value="Selected" ${currentStatus === 'Selected' ? 'selected' : ''}>Status: Selected</option>
+                        </select>
+                    </div>
+
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                        <i class="ph ph-currency-inr"></i> ${job.salaryRange}
+                    </div>
+
+                    <div class="job-meta">
+                        <span class="posted-date">${job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + 'd ago'}</span>
+                        <div class="job-actions">
+                            <button onclick="openModal('${job.id}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">View</button>
+                            <a href="${job.applyUrl}" target="_blank" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Apply</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const container = document.getElementById('job-grid-container');
+            const banner = document.getElementById('pref-banner');
+
+            if (!container) return;
+
+            // Check if preferences are set (naive check)
+            const hasPrefs = preferences.roleKeywords.length > 0 || preferences.locations.length > 0;
+            if (banner) banner.style.display = hasPrefs ? 'none' : 'flex';
+
+            // Get Filters
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const location = document.getElementById('filter-location').value;
+            const mode = document.getElementById('filter-mode').value;
+            const experience = document.getElementById('filter-experience').value;
+            const source = document.getElementById('filter-source').value;
+            const sort = document.getElementById('filter-sort').value;
+            const statusFilter = document.getElementById('filter-status') ? document.getElementById('filter-status').value : '';
+            const onlyMatches = document.getElementById('filter-match-toggle').checked;
+
+            // Filter Data
+            let filtered = allJobs.filter(job => {
+                const matchSearch = job.title.toLowerCase().includes(search) || job.company.toLowerCase().includes(search);
+                const matchLoc = location ? job.location === location : true;
+                const matchMode = mode ? job.mode === mode : true;
+                const matchExp = experience ? job.experience === experience : true;
+                const matchSource = source ? job.source === source : true;
+
+                // Status Filter
+                const jobStatus = (jobStatuses[job.id]?.status) || 'Not Applied';
+                const matchStatus = statusFilter ? jobStatus === statusFilter : true;
+
+                // Match Score Filter
+                const score = calculateMatchScore(job);
+                const matchScore = onlyMatches ? score >= preferences.minScore : true;
+
+                return matchSearch && matchLoc && matchMode && matchExp && matchSource && matchScore && matchStatus;
+            });
+
+            // Sort Data
+            if (sort === 'newest') {
+                filtered.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
+            } else if (sort === 'salary') {
+                filtered.sort((a, b) => b.salaryRange.localeCompare(a.salaryRange));
+            } else if (sort === 'match') {
+                filtered.sort((a, b) => calculateMatchScore(b) - calculateMatchScore(a));
+            }
+
+            // Render
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1; margin-top: 40px;">
+                        <div class="empty-icon"><i class="ph ph-magnifying-glass"></i></div>
+                        <h3>No roles match your criteria.</h3>
+                        <p>Adjust filters or lower threshold.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = filtered.map(renderJobCard).join('');
+            }
+        }
+
+        function renderSaved() {
+            const container = document.getElementById('saved-grid-container');
+            const emptyState = document.getElementById('saved-empty-state');
+
+            if (!container) return;
+
+            const savedItems = allJobs.filter(job => savedJobs.includes(job.id));
+
+            if (savedItems.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                container.style.display = 'grid';
+                emptyState.style.display = 'none';
+                container.innerHTML = savedItems.map(renderJobCard).join('');
+            }
+        }
+
+        // --- ACTIONS ---
+        window.toggleSave = function (id) {
+            if (savedJobs.includes(id)) {
+                savedJobs = savedJobs.filter(jid => jid !== id);
+            } else {
+                savedJobs.push(id);
+            }
+            localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
+
+            // Re-render active view
+            renderDashboard();
+            renderSaved();
+        };
+
+        window.openModal = function (id) {
+            const job = allJobs.find(j => j.id === id);
+            if (!job) return;
+
+            document.getElementById('modal-title').innerText = job.title;
+            document.getElementById('modal-company').innerText = `${job.company} • ${job.location} (${job.mode})`;
+            document.getElementById('modal-desc').innerText = job.description;
+            document.getElementById('modal-skills').innerHTML = job.skills.map(s => `<span class="badge">${s}</span>`).join('');
+            document.getElementById('modal-apply-btn').href = job.applyUrl;
+
+            document.getElementById('job-modal').classList.add('open');
+        };
+
+        // --- DIGEST ENGINE ---
+        function generateDigest() {
+            // Check Prefs
+            if (preferences.roleKeywords.length === 0 && preferences.locations.length === 0) {
+                document.getElementById('digest-empty').style.display = 'block';
+                document.getElementById('digest-container').style.display = 'none';
+                document.getElementById('digest-actions').style.display = 'none';
+                document.getElementById('digest-no-matches').style.display = 'none';
+                return;
+            }
+
+            // Check Persistence
+            const today = new Date().toISOString().split('T')[0];
+            const storedDigest = localStorage.getItem(`jobTrackerDigest_${today}`);
+
+            let digestJobs = [];
+
+            if (storedDigest) {
+                const ids = JSON.parse(storedDigest);
+                digestJobs = allJobs.filter(j => ids.includes(j.id));
+            } else {
+                // Generate Logic: Match Score -> Date
+                const scoredJobs = allJobs.map(j => ({ ...j, score: calculateMatchScore(j) }))
+                    .filter(j => j.score > 0); // Only matches
+
+                scoredJobs.sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score; // Higher score first
+                    return a.postedDaysAgo - b.postedDaysAgo; // Newest first (lowest days)
+                });
+
+                digestJobs = scoredJobs.slice(0, 10);
+
+                // Persist
+                if (digestJobs.length > 0) {
+                    const idsToSave = digestJobs.map(j => j.id);
+                    localStorage.setItem(`jobTrackerDigest_${today}`, JSON.stringify(idsToSave));
+                }
+            }
+
+            renderDigestUI(digestJobs, today);
+        }
+
+        function renderDigestUI(jobs, dateStr) {
+            const container = document.getElementById('digest-container');
+            const list = document.getElementById('digest-list');
+            const actions = document.getElementById('digest-actions');
+            const dateEl = document.getElementById('digest-date');
+            const emptyEl = document.getElementById('digest-empty');
+            const noMatchEl = document.getElementById('digest-no-matches');
+
+            // Reset States
+            emptyEl.style.display = 'none';
+            container.style.display = 'none';
+            actions.style.display = 'none';
+            noMatchEl.style.display = 'none';
+
+            if (jobs.length === 0) {
+                noMatchEl.style.display = 'block';
+                return;
+            }
+
+            // Render
+            dateEl.innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            list.innerHTML = jobs.map(job => {
+                const score = calculateMatchScore(job); // Recalc for display
+                const scoreColor = getScoreColor(score);
+                return `
+                    <div style="padding-bottom: 24px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                            <div>
+                                <h3 style="font-size: 18px; font-family: var(--font-serif); color: var(--text-primary); margin: 0;">${job.title}</h3>
+                                <p style="font-size: 14px; font-weight: 600; color: var(--text-secondary); margin: 4px 0;">${job.company} • ${job.location}</p>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 700; color: ${scoreColor}; border: 1px solid ${scoreColor}; padding: 2px 8px; border-radius: 12px;">
+                                ${score}% Match
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; color: #666; margin-bottom: 12px;">${job.experience} • ${job.mode} • ₹${job.salaryRange}</p>
+                        <a href="${job.applyUrl}" target="_blank" style="font-size: 14px; font-weight: 500; color: var(--accent); text-decoration: none;">Apply Now &rarr;</a>
+                    </div>
+                `;
+            }).join('');
+
+            container.style.display = 'block';
+            actions.style.display = 'flex';
+
+            // Prepare Email Draft
+            const subject = encodeURIComponent(`My 9AM Job Digest - ${dateStr}`);
+            const bodyText = jobs.map(j => `${j.title} at ${j.company}\nLocation: ${j.location}\nMatch: ${calculateMatchScore(j)}%\nApply: ${j.applyUrl}\n\n`).join('');
+            const body = encodeURIComponent(bodyText);
+            document.getElementById('email-draft-btn').href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        function copyDigest() {
+            const list = document.getElementById('digest-list');
+            const text = list.innerText.replace(/Apply Now →/g, ''); // Simple cleanup
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Digest copied to clipboard!");
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('job-modal').classList.remove('open');
+        };
+
+        // --- ROUTING ---
+        function handleRoute() {
+            const hash = window.location.hash.slice(1);
+            let currentRoute = 'landing';
+            const validRoutes = ['dashboard', 'saved', 'digest', 'settings', 'proof'];
+
+            if (validRoutes.includes(hash)) {
+                currentRoute = hash;
+            }
+
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const activeSection = document.getElementById(`view-${currentRoute}`);
+            if (activeSection) activeSection.classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.link === currentRoute) link.classList.add('active');
+            });
+
+            // Trigger Specific View Renders
+            if (currentRoute === 'dashboard') renderDashboard();
+            if (currentRoute === 'saved') renderSaved();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+        }
+
+        // --- INIT ---
+        window.addEventListener('hashchange', handleRoute);
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPreferences();
+            loadStatuses(); // Load statuses
+
+            // Generate Data
+            if (allJobs.length === 0) {
+                allJobs = generateJobs(60);
+            }
+
+            // Attach Filter Listeners
+            const filters = ['filter-search', 'filter-location', 'filter-mode', 'filter-experience', 'filter-source', 'filter-sort', 'filter-status', 'filter-match-toggle'];
+            filters.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', renderDashboard);
+            });
+
+            handleRoute();
+        });
+
+        // --- TEST CHECKLIST & SHIP LOGIC ---
+        const testChecklistItems = [
+            { id: 't1', label: 'Preferences persist after refresh', tooltip: 'Reload page and check settings' },
+            { id: 't2', label: 'Match score calculates correctly', tooltip: 'Verify score math vs rules' },
+            { id: 't3', label: '"Show only matches" toggle works', tooltip: 'Filter should hide low scores' },
+            { id: 't4', label: 'Save job persists after refresh', tooltip: 'Bookmark a job and reload' },
+            { id: 't5', label: 'Apply opens in new tab', tooltip: 'Click apply button' },
+            { id: 't6', label: 'Status update persists after refresh', tooltip: 'Change status and reload' },
+            { id: 't7', label: 'Status filter works correctly', tooltip: 'Filter by Applied/Rejected' },
+            { id: 't8', label: 'Digest generates top 10 by score', tooltip: 'Check digest logic' },
+            { id: 't9', label: 'Digest persists for the day', tooltip: 'Reload should show same digest' },
+            { id: 't10', label: 'No console errors on main pages', tooltip: 'Check DevTools Console' }
+        ];
+
+        let checklistState = JSON.parse(localStorage.getItem('jobTrackerChecklist')) || {};
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-items');
+            if (!container) return;
+
+            // Sort logic if needed, currently list order
+            const checkedCount = Object.values(checklistState).filter(v => v).length;
+            const total = testChecklistItems.length;
+
+            // Update Header
+            document.getElementById('test-progress-text').innerText = `Tests Passed: ${checkedCount} / ${total}`;
+            const warnEl = document.getElementById('test-warning');
+            const succEl = document.getElementById('test-success');
+            const proceedBtn = document.getElementById('btn-proceed-ship');
+
+            if (checkedCount < total) {
+                warnEl.style.display = 'block';
+                succEl.style.display = 'none';
+                proceedBtn.style.opacity = '0.5';
+                proceedBtn.style.pointerEvents = 'none';
+                document.getElementById('test-progress-text').style.color = 'var(--error)';
+            } else {
+                warnEl.style.display = 'none';
+                succEl.style.display = 'block';
+                proceedBtn.style.opacity = '1';
+                proceedBtn.style.pointerEvents = 'auto';
+                document.getElementById('test-progress-text').style.color = 'var(--success)';
+            }
+
+            // Render Items
+            container.innerHTML = testChecklistItems.map(item => {
+                const isChecked = checklistState[item.id] || false;
+                return `
+                    <div class="checklist-item" onclick="toggleChecklist('${item.id}')">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} style="transform: scale(1.3); accent-color: var(--accent); cursor: pointer;">
+                        <span class="checklist-label">${item.label}</span>
+                        ${item.tooltip ? `<span class="checklist-tooltip" title="${item.tooltip}">?</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleChecklist(id) {
+            checklistState[id] = !checklistState[id];
+            localStorage.setItem('jobTrackerChecklist', JSON.stringify(checklistState));
+            renderChecklist();
+        }
+
+        function resetTestStatus() {
+            if (confirm("Reset all test progress?")) {
+                checklistState = {};
+                localStorage.setItem('jobTrackerChecklist', JSON.stringify(checklistState));
+                renderChecklist();
+            }
+        }
+
+        function isShipUnlocked() {
+            const checkedCount = Object.values(checklistState).filter(v => v).length;
+            return checkedCount === testChecklistItems.length;
+        }
+
+        // Modified handleRoute to include new routes and lock logic
+        const oldHandleRoute = handleRoute; // Keep Ref if needed, but we'll override
+        handleRoute = function () { // Override existing function
+            const hash = window.location.hash.slice(1);
+            let currentRoute = 'landing';
+            // Added new routes to valid list, handling generic match
+            // We need to support exact matches for new routes
+
+            if (hash === 'jt/07-test') {
+                currentRoute = 'ji-07-test';
+            } else if (hash === 'jt/08-ship') {
+                currentRoute = 'jt-08-ship';
+            } else {
+                // Fallback to original simple routes
+                const validRoutes = ['dashboard', 'saved', 'digest', 'settings', 'proof'];
+                if (validRoutes.includes(hash)) {
+                    currentRoute = hash;
+                }
+            }
+
+            // Special Logic for Ship Lock
+            if (currentRoute === 'jt-08-ship') {
+                if (!isShipUnlocked()) {
+                    // Option A: Redirect
+                    // window.location.hash = 'jt/07-test';
+                    // return;
+
+                    // Option B: Show Locked State
+                    document.getElementById('ship-locked').style.display = 'block';
+                    document.getElementById('ship-unlocked').style.display = 'none';
+                } else {
+                    document.getElementById('ship-locked').style.display = 'none';
+                    document.getElementById('ship-unlocked').style.display = 'block';
+                }
+            }
+
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const activeSection = document.getElementById(`view-${currentRoute}`);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            } else {
+                // If ID logic failed (e.g. landing default), try fallback
+                document.getElementById('view-landing').classList.add('active');
+            }
+
+            // Render Test View if active
+            if (currentRoute === 'ji-07-test') renderChecklist();
+
+            // Nav State (Simple match)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.link === currentRoute) link.classList.add('active');
+                // Note: New routes don't have nav links in top bar per requirements, 
+                // but if they did we'd match here.
+            });
+
+            // Trigger Specific View Renders
+            if (currentRoute === 'dashboard') renderDashboard();
+            if (currentRoute === 'saved') renderSaved();
+        };
+
+        // Re-attach listener since we replaced the function reference (though window.onhashchange calls by name usually, better safe)
+        window.removeEventListener('hashchange', oldHandleRoute);
+        window.addEventListener('hashchange', handleRoute);
+
+        // --- PROOF SYSTEM LOGIC ---
+        let proofState = {
+            lovable: '',
+            github: '',
+            deploy: ''
+        };
+
+        function loadProofState() {
+            const saved = localStorage.getItem('jobTrackerProof');
+            if (saved) {
+                try {
+                    proofState = { ...proofState, ...JSON.parse(saved) };
+                    document.getElementById('proof-lovable').value = proofState.lovable;
+                    document.getElementById('proof-github').value = proofState.github;
+                    document.getElementById('proof-deploy').value = proofState.deploy;
+                } catch (e) { console.error("Proof Load Error", e); }
+            }
+            updateProofUI();
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return string.length > 8 && string.includes('.'); // Basic sanity check
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function updateProofState() {
+            proofState.lovable = document.getElementById('proof-lovable').value.trim();
+            proofState.github = document.getElementById('proof-github').value.trim();
+            proofState.deploy = document.getElementById('proof-deploy').value.trim();
+
+            localStorage.setItem('jobTrackerProof', JSON.stringify(proofState));
+            updateProofUI();
+        }
+
+        function updateProofUI() {
+            const vLove = isValidUrl(proofState.lovable);
+            const vGit = isValidUrl(proofState.github);
+            const vDep = isValidUrl(proofState.deploy);
+            const allTestsPassed = isShipUnlocked();
+
+            // Update Icons
+            setIcon('icon-lovable', vLove);
+            setIcon('icon-github', vGit);
+            setIcon('icon-deploy', vDep);
+
+            // Determine Status
+            // Shipped = All 3 URLs Valid + 10 Tests Passed
+            const isShipped = vLove && vGit && vDep && allTestsPassed;
+            // In Progress = Any input filled OR some tests passed
+            const isInProgress = (proofState.lovable || proofState.github || proofState.deploy || Object.values(checklistState).some(x => x));
+
+            const badge = document.getElementById('proof-status-badge');
+            const msg = document.getElementById('proof-success-msg');
+
+            if (isShipped) {
+                badge.className = 'status-badge shipped';
+                badge.innerText = 'Shipped';
+                msg.style.opacity = '1';
+            } else if (isInProgress) {
+                badge.className = 'status-badge in-progress';
+                badge.innerText = 'In Progress';
+                msg.style.opacity = '0';
+            } else {
+                badge.className = 'status-badge not-started';
+                badge.innerText = 'Not Started';
+                msg.style.opacity = '0';
+            }
+        }
+
+        function setIcon(id, isValid) {
+            const el = document.getElementById(id);
+            if (isValid) {
+                el.className = 'ph ph-check-circle url-status-icon';
+                el.style.color = 'var(--success)';
+            } else {
+                el.className = 'ph ph-circle url-status-icon';
+                el.style.color = '#ccc';
+            }
+        }
+
+        function copyFinalSubmission() {
+            const text = `
+Job Notification Tracker — Final Submission
+
+Lovable Project:
+${proofState.lovable || '[Missing Link]'}
+
+GitHub Repository:
+${proofState.github || '[Missing Link]'}
+
+Live Deployment:
+${proofState.deploy || '[Missing Link]'}
+
+Core Features:
+- Intelligent match scoring
+- Daily digest simulation
+- Status tracking
+- Test checklist enforced
+`;
+            navigator.clipboard.writeText(text.trim()).then(() => {
+                const fb = document.getElementById('proof-copy-feedback');
+                fb.style.display = 'block';
+                setTimeout(() => fb.style.display = 'none', 3000);
+            });
+        }
+
+        // Hook into init
+        const originalInit = window.onload; // or however it was attached, actually looking at code:
+        // window.addEventListener('DOMContentLoaded', ...)
+        // We can just add another listener
+        window.addEventListener('DOMContentLoaded', loadProofState);
+
+
+    </script>
+</body>
+
+</html>
