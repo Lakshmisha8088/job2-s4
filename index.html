@@ -739,13 +739,183 @@
     </div>
 
     <script>
-        // ROUTING LOGIC
-        function handleRoute() {
-            // Get hash
-            const hash = window.location.hash.slice(1);
+        // --- DATA GENERATOR ---
+        const companies = [
+            "Infosys", "TCS", "Wipro", "Accenture", "Capgemini", "Cognizant", "IBM", "Oracle", "SAP", "Dell",
+            "Amazon", "Flipkart", "Swiggy", "Razorpay", "PhonePe", "Paytm", "Zoho", "Freshworks", "Juspay", "CRED",
+            "Zerodha", "Groww", "Postman", "BrowserStack", "HackerRank", "InMobi", "Dream11", "Meesho", "Udaan", "Urban Company"
+        ];
+        const roles = [
+            "SDE Intern", "Graduate Engineer Trainee", "Junior Backend Developer", "Frontend Intern", "QA Intern",
+            "Data Analyst Intern", "Java Developer (0-1)", "Python Developer (Fresher)", "React Developer (1-3)",
+            "Product Designer", "Full Stack Intern", "DevOps Engineer (Junior)", "Technical Support Engineer", "Business Analyst"
+        ];
+        const locations = ["Bengaluru", "Hyderabad", "Pune", "Mumbai", "Gurugram", "Noida", "Chennai", "Remote"];
+        const modes = ["Onsite", "Hybrid", "Remote"];
+        const sources = ["LinkedIn", "Naukri", "Indeed", "Instahyre", "Hirist"];
 
-            // Normalize routes
-            // If No hash -> Landing
+        function generateJobs(count) {
+            const jobs = [];
+            for (let i = 0; i < count; i++) {
+                const isIntern = Math.random() > 0.7;
+                const company = companies[Math.floor(Math.random() * companies.length)];
+                const role = roles[Math.floor(Math.random() * roles.length)];
+
+                let salary = "Not Disclosed";
+                if (isIntern) {
+                    salary = `₹${15 + Math.floor(Math.random() * 25)}k/month`;
+                } else {
+                    const base = 3 + Math.floor(Math.random() * 12);
+                    salary = `${base}-${base + 4} LPA`;
+                }
+
+                jobs.push({
+                    id: `job-${1000 + i}`,
+                    title: role,
+                    company: company,
+                    location: locations[Math.floor(Math.random() * locations.length)],
+                    mode: modes[Math.floor(Math.random() * modes.length)],
+                    experience: isIntern ? "Fresher" : ["0-1 Years", "1-3 Years", "3-5 Years"][Math.floor(Math.random() * 3)],
+                    skills: ["Java", "Python", "React", "Node.js", "SQL", "AWS", "Figma"].sort(() => 0.5 - Math.random()).slice(0, 3),
+                    source: sources[Math.floor(Math.random() * sources.length)],
+                    postedDaysAgo: Math.floor(Math.random() * 10),
+                    salaryRange: salary,
+                    applyUrl: "#",
+                    description: `We are looking for a passionate ${role} to join our team at ${company}. \n\nYou will work on cutting-edge technologies and contribute to scalable products. \n\nRequirements:\n- Strong problem-solving skills.\n- Knowledge of modern frameworks.\n- Ability to work in a fast-paced environment.`
+                });
+            }
+            return jobs;
+        }
+
+        // --- STATE MANAGE ---
+        let allJobs = [];
+        let savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || [];
+
+        // --- RENDER LOGIC ---
+        function renderJobCard(job) {
+            const isNew = job.postedDaysAgo <= 2;
+            const isSaved = savedJobs.includes(job.id);
+
+            return `
+                <div class="job-card">
+                    <div class="job-header">
+                        <div>
+                            <div class="job-title">${job.title}</div>
+                            <div class="job-company">${job.company}</div>
+                        </div>
+                        <button onclick="toggleSave('${job.id}')" class="btn-icon" style="background:none; border:none; cursor:pointer;">
+                            <i class="${isSaved ? 'ph-fill' : 'ph'} ph-bookmark-simple" style="font-size: 20px; color: ${isSaved ? 'var(--accent)' : 'var(--text-secondary)'}"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="job-badges">
+                        <span class="badge" style="background: #f0f0f0;">${job.location} (${job.mode})</span>
+                        <span class="badge" style="background: #f0f0f0;">${job.experience}</span>
+                        ${isNew ? '<span class="badge new">New</span>' : ''}
+                        <span class="badge source">${job.source}</span>
+                    </div>
+
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+                        <i class="ph ph-currency-inr"></i> ${job.salaryRange}
+                    </div>
+
+                    <div class="job-meta">
+                        <span class="posted-date">${job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + 'd ago'}</span>
+                        <div class="job-actions">
+                            <button onclick="openModal('${job.id}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">View</button>
+                            <a href="${job.applyUrl}" target="_blank" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">Apply</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const container = document.getElementById('job-grid-container');
+            if (!container) return;
+
+            // Get Filters
+            const search = document.getElementById('filter-search').value.toLowerCase();
+            const location = document.getElementById('filter-location').value;
+            const mode = document.getElementById('filter-mode').value;
+            const experience = document.getElementById('filter-experience').value;
+            const source = document.getElementById('filter-source').value;
+            const sort = document.getElementById('filter-sort').value;
+
+            // Filter Data
+            let filtered = allJobs.filter(job => {
+                const matchSearch = job.title.toLowerCase().includes(search) || job.company.toLowerCase().includes(search);
+                const matchLoc = location ? job.location === location : true;
+                const matchMode = mode ? job.mode === mode : true;
+                const matchExp = experience ? job.experience === experience : true;
+                const matchSource = source ? job.source === source : true;
+                return matchSearch && matchLoc && matchMode && matchExp && matchSource;
+            });
+
+            // Sort Data
+            if (sort === 'newest') {
+                filtered.sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
+            } else if (sort === 'salary') {
+                // Simple string sort approx for prototype
+                filtered.sort((a, b) => b.salaryRange.localeCompare(a.salaryRange));
+            }
+
+            // Render
+            container.innerHTML = filtered.map(renderJobCard).join('');
+        }
+
+        function renderSaved() {
+            const container = document.getElementById('saved-grid-container');
+            const emptyState = document.getElementById('saved-empty-state');
+
+            if (!container) return;
+
+            const savedItems = allJobs.filter(job => savedJobs.includes(job.id));
+
+            if (savedItems.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+            } else {
+                container.style.display = 'grid';
+                emptyState.style.display = 'none';
+                container.innerHTML = savedItems.map(renderJobCard).join('');
+            }
+        }
+
+        // --- ACTIONS ---
+        window.toggleSave = function (id) {
+            if (savedJobs.includes(id)) {
+                savedJobs = savedJobs.filter(jid => jid !== id);
+            } else {
+                savedJobs.push(id);
+            }
+            localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
+
+            // Re-render active view
+            renderDashboard();
+            renderSaved();
+        };
+
+        window.openModal = function (id) {
+            const job = allJobs.find(j => j.id === id);
+            if (!job) return;
+
+            document.getElementById('modal-title').innerText = job.title;
+            document.getElementById('modal-company').innerText = `${job.company} • ${job.location} (${job.mode})`;
+            document.getElementById('modal-desc').innerText = job.description;
+            document.getElementById('modal-skills').innerHTML = job.skills.map(s => `<span class="badge">${s}</span>`).join('');
+            document.getElementById('modal-apply-btn').href = job.applyUrl;
+
+            document.getElementById('job-modal').classList.add('open');
+        };
+
+        window.closeModal = function () {
+            document.getElementById('job-modal').classList.remove('open');
+        };
+
+        // --- ROUTING ---
+        function handleRoute() {
+            const hash = window.location.hash.slice(1);
             let currentRoute = 'landing';
             const validRoutes = ['dashboard', 'saved', 'digest', 'settings', 'proof'];
 
@@ -753,35 +923,43 @@
                 currentRoute = hash;
             }
 
-            // Update View
             document.querySelectorAll('.view-section').forEach(section => {
                 section.classList.remove('active');
             });
             const activeSection = document.getElementById(`view-${currentRoute}`);
             if (activeSection) activeSection.classList.add('active');
 
-            // Update Nav State (Desktop)
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
                 if (link.dataset.link === currentRoute) link.classList.add('active');
             });
 
-            // Update Nav State (Mobile)
-            document.querySelectorAll('.mobile-nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.dataset.link === currentRoute) link.classList.add('active');
-            });
+            // Trigger Specific View Renders
+            if (currentRoute === 'dashboard') renderDashboard();
+            if (currentRoute === 'saved') renderSaved();
         }
 
-        // MOBILE MENU LOGIC
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('open');
+            document.getElementById('mobileMenu').classList.toggle('open');
         }
 
-        // INIT
+        // --- INIT ---
         window.addEventListener('hashchange', handleRoute);
-        window.addEventListener('load', handleRoute);
+        window.addEventListener('DOMContentLoaded', () => {
+            // Generate Data
+            if (allJobs.length === 0) {
+                allJobs = generateJobs(60);
+            }
+
+            // Attach Filter Listeners
+            const filters = ['filter-search', 'filter-location', 'filter-mode', 'filter-experience', 'filter-source', 'filter-sort'];
+            filters.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', renderDashboard);
+            });
+
+            handleRoute();
+        });
     </script>
 </body>
 
